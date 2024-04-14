@@ -10,29 +10,24 @@ const SearchPage = () => {
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 mutation.addedNodes.forEach(node => {
-                    if (node.nodeName === 'INPUT' && node.classList.contains('gsc-input')) {
-                        // 查找搜索按钮
-                        const form = node.closest('form');
-                        if (form) {
-                            const button = form.querySelector('input.gsc-search-button[type="submit"], button.gsc-search-button');
-                            if (button) {
-                                button.addEventListener('click', (event) => {
-                                    event.preventDefault(); // 阻止表单默认提交
-                                    const searchTerm = node.value;
-                                    if (searchTerm) {
-                                        gtag('event', 'search', {
-                                            search_term: searchTerm,
-                                        });
-                                    }
-                                    form.submit(); // 手动提交表单
+                    // 检查是否是搜索建议容器
+                    if (node.nodeName === 'TABLE' && node.classList.contains('gssb_c')) {
+                        // 给搜索建议的每一项添加点击事件监听器
+                        node.querySelectorAll('td.gssb_a').forEach(suggestion => {
+                            suggestion.addEventListener('click', () => {
+                                const searchText = suggestion.innerText;
+                                // 发送搜索建议到 Google Analytics
+                                gtag('event', 'autocomplete_click', {
+                                    search_term: searchText,
                                 });
-                            }
-                        }
+                            });
+                        });
                     }
                 });
             });
         });
 
+        // 监听可能包含搜索建议的容器
         observer.observe(document.body, { childList: true, subtree: true });
 
         return () => {
