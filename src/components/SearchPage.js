@@ -8,24 +8,32 @@ const SearchPage = () => {
         script.async = true;
         document.body.appendChild(script);
 
-        // 脚本加载完成后初始化 CSE 并添加事件监听
-        script.onload = () => {
-            // 确保全局的 google 搜索对象存在
-            if (window.google && window.google.search && window.google.search.cse) {
-                const element = google.search.cse.element.getElement('standard0'); // 通常的 CSE 元素ID
-                if (element) {
-                    element.setSearchCompleteCallback((context, results) => {
-                        // 获取搜索词并发送到 Google Analytics
-                        const query = results && results.formattedQuery ? results.formattedQuery : '';
+        // 监听搜索表单的提交
+        const captureSearchQuery = () => {
+            const searchForms = document.querySelectorAll('form.gsc-search-box');
+            searchForms.forEach(form => {
+                form.addEventListener('submit', (event) => {
+                    // 阻止表单默认提交以捕获搜索词
+                    event.preventDefault();
+                    const input = form.querySelector('input.gsc-input');
+                    if (input && input.value) {
+                        // 发送搜索词到 Google Analytics
                         gtag('event', 'search', {
-                            search_term: query,
+                            search_term: input.value,
                         });
-                    });
-                }
-            }
+                        // 手动触发搜索
+                        google.search.cse.element.getElement('standard0').execute(input.value);
+                    }
+                });
+            });
         };
 
-        // 组件卸载时移除脚本和清理事件
+        // 确保 CSE 脚本加载后添加事件监听器
+        script.onload = () => {
+            setTimeout(captureSearchQuery, 1000); // 延时以确保 DOM 元素已渲染
+        };
+
+        // 组件卸载时移除脚本
         return () => {
             document.body.removeChild(script);
         };
