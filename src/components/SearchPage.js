@@ -1,49 +1,65 @@
 import React, { useEffect } from 'react';
 
 const SearchPage = () => {
-    useEffect(() => {
-        // 创建并加载 Google CSE 脚本
-        const script = document.createElement('script');
-        script.src = "https://cse.google.com/cse.js?cx=02d8eddf1501844d2";
-        script.async = true;
-        document.body.appendChild(script);
+  useEffect(() => {
+    // 确保全局的 __gcse 对象
+    window.__gcse = {
+      parsetags: 'explicit',
+      initializationCallback: function() {
+        if (document.readyState === 'complete') {
+          // 初始化搜索元素
+          google.search.cse.element.render({
+            div: "search_container",
+            tag: 'search'
+          });
 
-        // 监听动态加载的 iframe 和其他动态元素来提取搜索词
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                mutation.addedNodes.forEach(node => {
-                    // 检查是否是 iframe 或其他相关元素
-                    if (node.nodeName === 'IFRAME' && node.src && node.name.startsWith('master-')) {
-                        node.onload = () => {
-                            const srcURL = new URL(node.src);
-                            const queryParam = srcURL.searchParams.get('query');
-                            if (queryParam) {
-                                // 发送搜索词到 Google Analytics
-                                gtag('event', 'search', {
-                                    search_term: queryParam,
-                                });
-                            }
-                        };
-                    }
-                });
+          // 获取搜索元素对象
+          const searchControl = google.search.cse.element.getElement('search');
+          
+          // 设置搜索完成的回调
+          searchControl.setSearchCompleteCallback(null, function() {
+            const query = searchControl.getInputQuery();
+            if (query) {
+              console.log("Search completed: " + query);
+              // 发送到 Google Analytics
+              gtag('event', 'search', {
+                'event_category': 'Search',
+                'event_label': query
+              });
+            }
+          }, null);
+        } else {
+          // 如果文档未完全加载，则设置加载回调
+          google.setOnLoadCallback(function() {
+            google.search.cse.element.render({
+              div: "search_container",
+              tag: 'search'
             });
-        });
+          }, true);
+        }
+      }
+    };
 
-        // 监听含 iframe 的容器或其他相关容器
-        observer.observe(document.body, { childList: true, subtree: true });
+    // 加载 CSE 脚本，并指定您的搜索引擎ID
+    const cx = '02d8eddf1501844d2';  // 替换为您的实际搜索引擎ID
+    const gcseScript = document.createElement('script');
+    gcseScript.type = 'text/javascript';
+    gcseScript.async = true;
+    gcseScript.src = `https://cse.google.com/cse.js?cx=${cx}`;
+    document.body.appendChild(gcseScript);
 
-        return () => {
-            observer.disconnect();
-            document.body.removeChild(script);
-        };
-    }, []);
+    return () => {
+      // 组件卸载时移除脚本
+      document.body.removeChild(gcseScript);
+    };
+  }, []);
 
-    return (
-        <div>
-            <h1>Search with Google</h1>
-            <div className="gcse-search"></div>
-        </div>
-    );
+  return (
+    <div>
+      <h1>Search with Google</h1>
+      <div id="search_container" className="gcse-search"></div>
+    </div>
+  );
 };
 
 export default SearchPage;
