@@ -8,34 +8,34 @@ const SearchPage = () => {
         script.async = true;
         document.body.appendChild(script);
 
-        // 监听搜索表单的提交
-        const captureSearchQuery = () => {
-            const searchForms = document.querySelectorAll('form.gsc-search-box');
-            searchForms.forEach(form => {
-                form.addEventListener('submit', (event) => {
-                    // 阻止表单默认提交以捕获搜索词
-                    event.preventDefault();
-                    const input = form.querySelector('input.gsc-input');
-                    if (input && input.value) {
-                        // 发送搜索词到 Google Analytics
-                        gtag('event', 'search', {
-                            search_term: input.value,
+        // 设置 MutationObserver 来监听 DOM 变化
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach(node => {
+                    // 检查是否是搜索输入框
+                    if (node.nodeName === 'INPUT' && node.classList.contains('gsc-input')) {
+                        // 设置输入事件监听器
+                        node.addEventListener('input', (event) => {
+                            // 将搜索词发送到 Google Analytics
+                            const searchTerm = event.target.value;
+                            if (searchTerm) {
+                                gtag('event', 'search', {
+                                    search_term: searchTerm,
+                                });
+                            }
                         });
-                        // 手动触发搜索
-                        google.search.cse.element.getElement('standard0').execute(input.value);
                     }
                 });
             });
-        };
+        });
 
-        // 确保 CSE 脚本加载后添加事件监听器
-        script.onload = () => {
-            setTimeout(captureSearchQuery, 1000); // 延时以确保 DOM 元素已渲染
-        };
+        // 开始监听 document.body 的子元素变化
+        observer.observe(document.body, { childList: true, subtree: true });
 
-        // 组件卸载时移除脚本
+        // 组件卸载时清理
         return () => {
             document.body.removeChild(script);
+            observer.disconnect();
         };
     }, []);
 
