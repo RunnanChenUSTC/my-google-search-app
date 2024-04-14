@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const SearchPage = () => {
+    const [searchTerm, setSearchTerm] = useState('');  // 状态变量，用于存储用户的搜索输入
+
     useEffect(() => {
         // 创建脚本标签
         const script = document.createElement('script');
@@ -32,9 +34,26 @@ const SearchPage = () => {
         };
     }, []);
 
+    const handleSubmit = (event) => {
+        event.preventDefault();  // 阻止表单默认提交行为
+        // 使用gtag发送搜索词到Google Analytics
+        gtag('event', 'search', {
+            search_term: searchTerm,
+        });
+    };
+
     return (
         <div>
             <h1>Search with Google</h1>
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    placeholder="Enter search term"
+                />
+                <button type="submit">Search</button>
+            </form>
             <div className="gcse-search"></div>
         </div>
     );
