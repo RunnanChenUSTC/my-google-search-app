@@ -7,30 +7,27 @@ const SearchPage = () => {
         script.async = true;
         document.body.appendChild(script);
 
-        const debounce = (func, delay) => {
-            let timer;
-            return function(...args) {
-                if (timer) clearTimeout(timer);
-                timer = setTimeout(() => {
-                    func.apply(this, args);
-                }, delay);
-            };
-        };
-
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeName === 'INPUT' && node.classList.contains('gsc-input')) {
-                        const debouncedInputEvent = debounce((event) => {
-                            const searchTerm = event.target.value;
-                            if (searchTerm) {
-                                gtag('event', 'search', {
-                                    search_term: searchTerm,
+                        // 查找搜索按钮
+                        const form = node.closest('form');
+                        if (form) {
+                            const button = form.querySelector('input.gsc-search-button[type="submit"], button.gsc-search-button');
+                            if (button) {
+                                button.addEventListener('click', (event) => {
+                                    event.preventDefault(); // 阻止表单默认提交
+                                    const searchTerm = node.value;
+                                    if (searchTerm) {
+                                        gtag('event', 'search', {
+                                            search_term: searchTerm,
+                                        });
+                                    }
+                                    form.submit(); // 手动提交表单
                                 });
                             }
-                        }, 500); // 500 ms 的延迟
-
-                        node.addEventListener('input', debouncedInputEvent);
+                        }
                     }
                 });
             });
