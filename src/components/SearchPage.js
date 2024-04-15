@@ -12,51 +12,60 @@ const SearchPage = () => {
       document.body.appendChild(gcseScript);
 
       gcseScript.onload = () => {
-        // 确保搜索框被正确加载
         if (window.google && window.google.search && window.google.search.cse) {
           window.google.search.cse.element.render({
-            div: "storesearch_box",
-            tag: 'searchbox',
-            attributes: { gname: 'storesearch' }
-          });
-          window.google.search.cse.element.render({
-            div: "storesearch_results",
-            tag: 'searchresults',
-            attributes: { gname: 'storesearch' }
+            div: "search_container",
+            tag: 'search'
           });
         }
       };
     };
 
-    // 从 Google CSE 获取当前搜索查询
-    const getSearchQuery = () => {
-      const cseElement = window.google.search.cse.element.getElement('storesearch');
-      if (cseElement) {
-        const query = cseElement.getInputQuery();
-        console.log("Current search query: ", query);
-        // 可以在这里将查询发送到 Google Analytics
-        gtag('event', 'search', {
+    // 解析当前 URL 的哈希部分中的查询参数
+    const parseHashParams = (hash) => {
+      const queryString = hash.substring(hash.indexOf('?') + 1);
+      if (!queryString) return {};
+
+      const params = {};
+      const queries = queryString.split('&');
+      queries.forEach((query) => {
+        const [key, value] = query.split('=');
+        if (key && value) {
+          params[key] = decodeURIComponent(value.replace(/\+/g, ' '));
+        }
+      });
+      return params;
+    };
+
+    // 监听 URL 哈希变化，并处理搜索查询
+    const handleHashChange = () => {
+      const queryParams = parseHashParams(window.location.hash);
+      const searchQuery = queryParams['gsc.q'];
+      if (searchQuery) {
+        console.log("搜索词:", searchQuery);
+        // 这里可以调用任何处理或跟踪函数，例如发送到 Google Analytics
+        window.gtag('event', 'search', {
           'event_category': 'Search',
-          'event_label': query
+          'event_label': searchQuery
         });
       }
     };
 
-    initGoogleSearch();
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('load', handleHashChange); // 确保初次加载时也执行
 
-    // 在适当时监听事件或设置定时检查
-    window.addEventListener('hashchange', getSearchQuery);
+    initGoogleSearch();  // 初始化 Google CSE
 
     return () => {
-      window.removeEventListener('hashchange', getSearchQuery);
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('load', handleHashChange);
     };
   }, []);
 
   return (
     <div>
-      <h1>Search with Google</h1>
-      <div id="storesearch_box" className="gcse-searchbox" data-gname="storesearch"></div>
-      <div id="storesearch_results" className="gcse-searchresults" data-gname="storesearch"></div>
+      <h1>搜索页面</h1>
+      <div id="search_container" className="gcse-search"></div>
     </div>
   );
 };
