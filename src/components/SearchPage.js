@@ -1,43 +1,64 @@
 import React, { useEffect } from 'react';
 
 const SearchPage = () => {
-    useEffect(() => {
-        // 创建脚本标签
-        const script = document.createElement('script');
-        script.src = "https://cse.google.com/cse.js?cx=02d8eddf1501844d2";
-        script.async = true;
-        document.body.appendChild(script);
+  useEffect(() => {
+    // 初始化 Google CSE 脚本
+    const initGoogleSearch = () => {
+      const cx = '02d8eddf1501844d2'; // 替换为您的实际搜索引擎ID
+      const gcseScript = document.createElement('script');
+      gcseScript.type = 'text/javascript';
+      gcseScript.async = true;
+      gcseScript.src = `https://cse.google.com/cse.js?cx=${cx}`;
+      document.body.appendChild(gcseScript);
 
-        // 创建点击事件监听器
-        const clickListener = (event) => {
-            // 检查是否点击了搜索结果链接
-            if (event.target && event.target.matches("a.gs-title")) {
-                const url = event.target.href; // 获取链接的URL
+      gcseScript.onload = () => {
+        // 确保搜索框被正确加载
+        if (window.google && window.google.search && window.google.search.cse) {
+          window.google.search.cse.element.render({
+            div: "storesearch_box",
+            tag: 'searchbox',
+            attributes: { gname: 'storesearch' }
+          });
+          window.google.search.cse.element.render({
+            div: "storesearch_results",
+            tag: 'searchresults',
+            attributes: { gname: 'storesearch' }
+          });
+        }
+      };
+    };
 
-                // 使用gtag发送点击事件到Google Analytics
-                gtag('event', 'select_content', {
-                    content_type: 'search_result',
-                    item_id: url,
-                });
-            }
-        };
+    // 从 Google CSE 获取当前搜索查询
+    const getSearchQuery = () => {
+      const cseElement = window.google.search.cse.element.getElement('storesearch');
+      if (cseElement) {
+        const query = cseElement.getInputQuery();
+        console.log("Current search query: ", query);
+        // 可以在这里将查询发送到 Google Analytics
+        gtag('event', 'search', {
+          'event_category': 'Search',
+          'event_label': query
+        });
+      }
+    };
 
-        // 添加事件监听器到文档
-        document.addEventListener('click', clickListener);
+    initGoogleSearch();
 
-        // 组件卸载时移除脚本和事件监听器
-        return () => {
-            document.body.removeChild(script);
-            document.removeEventListener('click', clickListener);
-        };
-    }, []);
+    // 在适当时监听事件或设置定时检查
+    window.addEventListener('hashchange', getSearchQuery);
 
-    return (
-        <div>
-            <h1>Search with Google</h1>
-            <div className="gcse-search"></div>
-        </div>
-    );
+    return () => {
+      window.removeEventListener('hashchange', getSearchQuery);
+    };
+  }, []);
+
+  return (
+    <div>
+      <h1>Search with Google</h1>
+      <div id="storesearch_box" className="gcse-searchbox" data-gname="storesearch"></div>
+      <div id="storesearch_results" className="gcse-searchresults" data-gname="storesearch"></div>
+    </div>
+  );
 };
 
 export default SearchPage;
