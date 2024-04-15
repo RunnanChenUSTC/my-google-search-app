@@ -36,16 +36,19 @@ const SearchPage = () => {
         console.log("Current search query: ", query);
 
         // 发送查询到自己的服务器
-        fetch('http://localhost:3000/api/search', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ searchTerm: query })
-        })
-        .then(response => response.json())
-        .then(data => console.log("Response from server: ", data))
-        .catch(error => console.error('Error posting search query:', error));
+        // 使用 fetch 发送 POST 请求
+        function sendSearchTerm(searchTerm) {
+          fetch('/api/logSearch', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ query })
+          })
+          .then(response => response.json())
+          .then(data => console.log(data))
+          .catch(error => console.error('Error logging search term:', error));
+        }
       }
     };
 
