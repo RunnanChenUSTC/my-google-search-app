@@ -66,7 +66,7 @@ const SearchPage = () => {
         document.addEventListener('click', clickListener);
 
     // 设置定时检查以捕获搜索词
-    const intervalId = setInterval(getSearchQuery, 10000); // 每5秒检查一次
+    const intervalId = setInterval(getSearchQuery, 5000); // 每5秒检查一次
 
     initGoogleSearch();
 
