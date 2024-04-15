@@ -22,28 +22,33 @@ const SearchPage = () => {
       };
     };
 
+    // 解析 URL 哈希中的查询参数
+    const parseHash = (hash) => {
+      const params = new URLSearchParams(hash.slice(hash.indexOf('?')));
+      return params.get('gsc.q'); // 从哈希中获取 'gsc.q' 参数的值
+    };
+
     // 监听 URL 变化
     const loadHandler = () => {
-      const params = new URLSearchParams(window.location.search);
-      const searchQuery = params.get('gsc.q');  // 获取 'gsc.q' 参数的值
+      const searchQuery = parseHash(window.location.hash);
       if (searchQuery) {
-        console.log("Search completed: " + searchQuery);
+        console.log("Search completed: " + decodeURIComponent(searchQuery));
         // 发送到 Google Analytics
         gtag('event', 'search', {
           'event_category': 'Search',
-          'event_label': searchQuery
+          'event_label': decodeURIComponent(searchQuery)
         });
       }
     };
 
     window.addEventListener('load', loadHandler);
-    window.addEventListener('popstate', loadHandler);
+    window.addEventListener('hashchange', loadHandler); // 监听哈希变化
 
     initGoogleSearch();
 
     return () => {
       window.removeEventListener('load', loadHandler);
-      window.removeEventListener('popstate', loadHandler);
+      window.removeEventListener('hashchange', loadHandler);
     };
   }, []);
 
