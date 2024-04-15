@@ -4,7 +4,7 @@ const SearchPage = () => {
   useEffect(() => {
     // 初始化 Google CSE
     const initGoogleSearch = () => {
-      const cx = '您的搜索引擎ID'; // 替换为您的实际搜索引擎ID
+      const cx = '02d8eddf1501844d2'; // 替换为您的实际搜索引擎ID
       const gcseScript = document.createElement('script');
       gcseScript.type = 'text/javascript';
       gcseScript.async = true;
