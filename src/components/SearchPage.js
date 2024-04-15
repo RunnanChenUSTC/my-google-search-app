@@ -2,7 +2,27 @@ import React, { useEffect } from 'react';
 
 const SearchPage = () => {
   useEffect(() => {
-    // 监听 window 的 'load' 和 'popstate' 事件来捕获 URL 变化
+    // 初始化 Google CSE
+    const initGoogleSearch = () => {
+      const cx = '您的搜索引擎ID'; // 替换为您的实际搜索引擎ID
+      const gcseScript = document.createElement('script');
+      gcseScript.type = 'text/javascript';
+      gcseScript.async = true;
+      gcseScript.src = `https://cse.google.com/cse.js?cx=${cx}`;
+      document.body.appendChild(gcseScript);
+
+      gcseScript.onload = () => {
+        // 确保搜索框被正确加载
+        if (window.google && window.google.search && window.google.search.cse) {
+          window.google.search.cse.element.render({
+            div: "search_container",
+            tag: 'search'
+          });
+        }
+      };
+    };
+
+    // 监听 URL 变化
     const loadHandler = () => {
       const params = new URLSearchParams(window.location.search);
       const searchQuery = params.get('gsc.q');  // 获取 'gsc.q' 参数的值
@@ -18,6 +38,8 @@ const SearchPage = () => {
 
     window.addEventListener('load', loadHandler);
     window.addEventListener('popstate', loadHandler);
+
+    initGoogleSearch();
 
     return () => {
       window.removeEventListener('load', loadHandler);
