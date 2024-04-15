@@ -4,7 +4,7 @@ const SearchPage = () => {
   useEffect(() => {
     // 初始化 Google CSE 脚本
     const initGoogleSearch = () => {
-      const cx = '02d8eddf1501844d2'; // 替换为您的实际搜索引擎ID
+      const cx = '02d8eddf1501844d2'; // 您的实际搜索引擎ID
       const gcseScript = document.createElement('script');
       gcseScript.type = 'text/javascript';
       gcseScript.async = true;
@@ -34,21 +34,28 @@ const SearchPage = () => {
       if (cseElement) {
         const query = cseElement.getInputQuery();
         console.log("Current search query: ", query);
-        // 可以在这里将查询发送到 Google Analytics
-        gtag('event', 'search', {
-          'event_category': 'Search',
-          'event_label': query
-        });
+
+        // 发送查询到自己的服务器
+        fetch('http://localhost:3000/api/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ searchTerm: query })
+        })
+        .then(response => response.json())
+        .then(data => console.log("Response from server: ", data))
+        .catch(error => console.error('Error posting search query:', error));
       }
     };
 
+    // 设置定时检查以捕获搜索词
+    const intervalId = setInterval(getSearchQuery, 5000); // 每5秒检查一次
+
     initGoogleSearch();
 
-    // 在适当时监听事件或设置定时检查
-    window.addEventListener('hashchange', getSearchQuery);
-
     return () => {
-      window.removeEventListener('hashchange', getSearchQuery);
+      clearInterval(intervalId); // 清除定时器
     };
   }, []);
 
@@ -61,4 +68,4 @@ const SearchPage = () => {
   );
 };
 
-export default SearchPage
+export default SearchPage;
