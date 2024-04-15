@@ -35,17 +35,17 @@ const SearchPage = () => {
         const query = cseElement.getInputQuery();
         console.log("Current search query: ", query);
 
-        // 发送查询到自己的服务器
-        fetch('http://localhost:3000/api/search', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ searchTerm: query })
-        })
-        .then(response => response.json())
-        .then(data => console.log("Response from server: ", data))
-        .catch(error => console.error('Error posting search query:', error));
+        // // 发送查询到自己的服务器
+        // fetch('http://localhost:3000/api/search', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify({ searchTerm: query })
+        // })
+        // .then(response => response.json())
+        // .then(data => console.log("Response from server: ", data))
+        // .catch(error => console.error('Error posting search query:', error));
       }
     };
 
