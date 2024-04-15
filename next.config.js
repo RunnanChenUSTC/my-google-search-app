@@ -1,6 +1,7 @@
 // next.config.js
 
-export default {
-  // Specify the output directory
-  distDir: 'build',
-};
+module.exports = {
+    // Specify the output directory
+    distDir: 'build',
+  };
+  
