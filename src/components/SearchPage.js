@@ -53,7 +53,7 @@ const SearchPage = () => {
             // 检查是否点击了搜索结果链接
             if (event.target && event.target.matches("a.gs-title")) {
                 const url = event.target.href; // 获取链接的URL
-
+                console.log("clicked url: ", url);
                 // 使用gtag发送点击事件到Google Analytics
                 gtag('event', 'select_content', {
                     content_type: 'search_result',
