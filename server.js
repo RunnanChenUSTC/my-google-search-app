@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
 
-// 解析 JSON 请求体
+// 解析 JSON 请求体.
 app.use(bodyParser.json());
 
 // Database connection
