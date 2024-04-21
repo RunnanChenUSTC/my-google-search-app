@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const SearchWithAutosuggest = () => {
   const [query, setQuery] = useState('');
@@ -33,7 +33,7 @@ const SearchWithAutosuggest = () => {
     }
   };
 
-  const executeSearch = async () => {
+  const fetchSearchResults = async () => {
     if (!query) return;
     setIsLoading(true);
     setError('');
@@ -54,10 +54,15 @@ const SearchWithAutosuggest = () => {
     }
   };
 
+  // 当页码改变时，触发新的搜索
+  useEffect(() => {
+    fetchSearchResults();
+  }, [currentPage]);
+
   const handleSubmit = (event) => {
     event.preventDefault();
     setCurrentPage(0);
-    executeSearch();
+    fetchSearchResults();
   };
 
   const goToNextPage = () => {
