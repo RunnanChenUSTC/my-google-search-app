@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const SearchPage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [query, setQuery] = useState('');
 
-  const fetchSearchResults = (query) => {
+  const fetchSearchResults = useCallback((query) => {
     const endpoint = `https://api.bing.microsoft.com/v7.0/custom/search`;
-    const apiKey = '66f4e1b1d31e475b8c09bd056ccc1945'; // 替换为你的 Bing API 密钥
-    const customConfigId = '09383300-fa71-4444-8a62-b5250c445569'; // 替换为你的自定义配置ID
+    const apiKey = '66f4e1b1d31e475b8c09bd056ccc1945';  // Your actual Bing API Key
+    const customConfigId = '09383300-fa71-4444-8a62-b5250c445569';  // Your Custom Config ID
     const url = `${endpoint}?q=${encodeURIComponent(query)}&customConfig=${customConfigId}`;
 
     fetch(url, {
@@ -16,23 +16,24 @@ const SearchPage = () => {
     })
     .then(response => response.json())
     .then(data => {
-      setSearchResults(data.webPages.value); // 假设结果存储在 webPages.value 中
+      setSearchResults(data.webPages.value);  // assuming the data is in webPages.value
     })
     .catch(error => console.error('Error fetching search results:', error));
-  };
+  }, []);
 
   useEffect(() => {
-    // 例如，可以添加一个事件监听器来处理表单提交
     const form = document.getElementById('searchForm');
-    form.addEventListener('submit', (event) => {
+    const handleSubmit = (event) => {
       event.preventDefault();
       fetchSearchResults(query);
-    });
+    };
+
+    form.addEventListener('submit', handleSubmit);
 
     return () => {
-      form.removeEventListener('submit');
+      form.removeEventListener('submit', handleSubmit);
     };
-  }, [query]);
+  }, [fetchSearchResults, query]);
 
   return (
     <div>
