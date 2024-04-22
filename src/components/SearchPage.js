@@ -53,6 +53,25 @@ const SearchWithAutosuggest = () => {
       setIsLoading(false);
     }
   };
+  const sendSearchQueryToDatabase = async (searchTerm) => {
+    try {
+      const response = await fetch('/api/save-query', {  // 确保这个URL与您的无服务器函数的路由匹配
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ searchQuery: searchTerm })
+      });
+      if (!response.ok) {
+        throw new Error('Failed to send query to database');
+      }
+      const responseData = await response.json();
+      console.log('Saved search query:', responseData);
+    } catch (error) {
+      console.error('Error saving search query to database:', error);
+    }
+  };
+  
 
   // 当页码改变时，触发新的搜索
   useEffect(() => {
@@ -63,6 +82,7 @@ const SearchWithAutosuggest = () => {
     event.preventDefault();
     setCurrentPage(0);
     fetchSearchResults();
+    sendSearchQueryToDatabase(query);
   };
 
   const goToNextPage = () => {
