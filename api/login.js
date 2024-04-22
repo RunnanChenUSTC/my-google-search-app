@@ -26,15 +26,11 @@ module.exports = (req, res) => {
       return res.status(404).send({ message: 'User not found' });
     }
 
-    const hashedPassword = results[0].Password;
-    bcrypt.compare(password, hashedPassword, (err, isMatch) => {
-      if (err) {
-        return res.status(500).send({ message: 'Error checking password', error: err });
-      }
-      if (!isMatch) {
-        return res.status(401).send({ message: 'Invalid credentials' });
-      }
+    const storedPassword = results[0].Password;
+    if (password === storedPassword) {
       res.status(200).send({ message: 'Login successful' });
-    });
+    } else {
+      res.status(401).send({ message: 'Invalid credentials' });
+    }
   });
 };
