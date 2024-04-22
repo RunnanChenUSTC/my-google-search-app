@@ -18,8 +18,8 @@ const Login = () => {
                 body: JSON.stringify({ username, password })
             });
             if (response.ok) {
-                // const data = await response.json();
-                // console.log('Login successful:', data);
+                const data = await response.json();
+                console.log('Login successful:', data);
                 const { token } = await response.json();
                 sessionStorage.setItem('jwtToken', token);
                 navigate('/search'); // 登录成功后导航到搜索页面
