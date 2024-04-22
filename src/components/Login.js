@@ -20,8 +20,8 @@ const Login = () => {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Login successful:', data);
-                const { token } = await response.json();
-                sessionStorage.setItem('jwtToken', token);
+                sessionStorage.setItem('jwtToken', data.token); // 保存 token
+                // console.log('Login successful:', data);
                 navigate('/search'); // 登录成功后导航到搜索页面
             } else {
                 const errorData = await response.json();
