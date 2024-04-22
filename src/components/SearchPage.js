@@ -14,7 +14,7 @@ const SearchWithAutosuggest = () => {
   // 使用解码的信息发送请求或进行其他操作
   console.log(decoded); // 打印解码后的 JWT 内容
   const userId = decoded.userID; // 假设 JWT 包含了 userID 字段
-  console.log(userID); // 打印解码后的 JWT 内容
+  console.log(userId); // 打印解码后的 JWT 内容
   const handleInputChange = async (event) => {
     const newText = event.target.value;
     setQuery(newText);
