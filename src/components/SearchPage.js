@@ -32,6 +32,25 @@ const SearchWithAutosuggest = () => {
       setSuggestions([]);
     }
   };
+  
+  const handleLinkClick = async (url) => {
+    try {
+      const response = await fetch('/api/save-query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ searchQuery: url })  // 将 URL 作为 searchQuery 发送
+      });
+      if (!response.ok) {
+        throw new Error('Failed to send URL to database');
+      }
+      console.log('URL saved successfully');
+    } catch (error) {
+      console.error('Error saving URL to database:', error);
+    }
+  };
+  
 
   const fetchSearchResults = async () => {
     if (!query) return;
@@ -119,7 +138,7 @@ const SearchWithAutosuggest = () => {
       <ul>
         {searchResults.map((result, index) => (
           <li key={index}>
-            <a href={result.url} target="_blank" rel="noopener noreferrer">{result.name}</a>
+             <a href={result.url} target="_blank" rel="noopener noreferrer" onClick={() => handleLinkClick(result.url)}>{result.name}</a>
             <p>{result.snippet}</p>
           </li>
         ))}
