@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const mysql = require('mysql');
 const bcrypt = require('bcryptjs');
 
@@ -28,7 +29,12 @@ module.exports = (req, res) => {
 
     const storedPassword = results[0].Password;
     if (password === storedPassword) {
-      res.status(200).send({ message: 'Login successful' });
+      const token = jwt.sign(
+        { userID: results[0].UserID }, 
+        process.env.JWT_SECRET,  // 确保设置了环境变量 JWT_SECRET
+        { expiresIn: '1h' }  // token 有效期，例如1小时
+      );
+      res.status(200).send({ message: 'Login successful', token: token });
     } else {
       res.status(401).send({ message: 'Invalid credentials' });
     }

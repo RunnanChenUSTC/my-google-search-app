@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import jwtDecode from 'jwt-decode';
 const SearchWithAutosuggest = () => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
@@ -8,7 +8,12 @@ const SearchWithAutosuggest = () => {
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const resultsPerPage = 10;
+  const token = sessionStorage.getItem('jwtToken'); // 从存储中获取 JWT
+  const decoded = jwtDecode(token); // 解码 JWT
 
+  // 使用解码的信息发送请求或进行其他操作
+  console.log(decoded); // 打印解码后的 JWT 内容
+  const userId = decoded.userID; // 假设 JWT 包含了 userID 字段
   const handleInputChange = async (event) => {
     const newText = event.target.value;
     setQuery(newText);
@@ -40,7 +45,7 @@ const SearchWithAutosuggest = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ searchQuery: url })  // 将 URL 作为 searchQuery 发送
+        body: JSON.stringify({ searchQuery: url,userID: userId })  // 将 URL 作为 searchQuery 发送
       });
       if (!response.ok) {
         throw new Error('Failed to send URL to database');
@@ -79,7 +84,7 @@ const SearchWithAutosuggest = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ searchQuery: searchTerm })
+        body: JSON.stringify({ searchQuery: searchTerm,userID: userId })
       });
       if (!response.ok) {
         throw new Error('Failed to send query to database');
