@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {jwtDecode} from 'jwt-decode';
+import { JwtPayload } from 'jwt-decode';
 const SearchWithAutosuggest = () => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
@@ -8,13 +9,16 @@ const SearchWithAutosuggest = () => {
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const resultsPerPage = 10;
-  const token = sessionStorage.getItem('jwtToken'); // 从存储中获取 JWT
-  const decoded = jwtDecode(token); // 解码 JWT
 
-  // 使用解码的信息发送请求或进行其他操作
-  console.log(decoded); // 打印解码后的 JWT 内容
-  const userId = decoded.userID; // 假设 JWT 包含了 userID 字段
-  console.log(userId); // 打印解码后的 JWT 内容
+  const token = sessionStorage.getItem('jwtToken'); // 正确获取 token
+  if (token) {
+      const decoded = jwtDecode(token); // 解码 JWT
+      console.log(decoded); // 打印解码后的 JWT 内容
+      const userId = decoded.userID; // 获取 userID
+      console.log(userId); // 打印 userID
+  } else {
+      console.log("No token found in sessionStorage.");
+  }
   const handleInputChange = async (event) => {
     const newText = event.target.value;
     setQuery(newText);
