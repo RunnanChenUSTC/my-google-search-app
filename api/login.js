@@ -17,7 +17,7 @@ module.exports = (req, res) => {
   }
 
   const { username, password } = req.body;
-  const query = 'SELECT Password FROM searchuser WHERE UserName = ?';
+  const query = 'SELECT Password,UserID FROM searchuser WHERE UserName = ?';
 
   pool.query(query, [username], (error, results) => {
     if (error) {
