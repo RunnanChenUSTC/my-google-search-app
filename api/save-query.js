@@ -24,7 +24,7 @@ module.exports = (req, res) => {
   }
 
   // 安全地插入查询到数据库
-  const sql = 'INSERT INTO searchlog (searchterm, time, userID) VALUES (?, NOW(), ?)';
+  const sql = 'INSERT INTO searchlog (searchterm, userID, time) VALUES (?, ?, NOW())';
   pool.query(sql, [searchQuery], (error, results) => {
     if (error) {
       console.error('Failed to save query:', error);
