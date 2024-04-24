@@ -42,7 +42,9 @@ const SearchWithAutosuggest = () => {
       setSuggestions([]);
     }
   };
-  
+  const token1 = sessionStorage.getItem('jwtToken');
+  const decoded1 = jwtDecode(token1)
+  const userId = decoded1.userID
   const handleLinkClick = async (url) => {
     try {
       const response = await fetch('/api/save-query', {
