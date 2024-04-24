@@ -17,15 +17,15 @@ module.exports = (req, res) => {
   }
 
   // 从请求体中获取searchQuery
-  const { searchQuery } = req.body;
-  if (!searchQuery) {
-    res.status(400).json({ error: 'No search query provided' });
+  const { searchQuery, userID } = req.body; // 获取 userID 和 searchQuery
+  if (!searchQuery || !userID) { // 检查是否有提供 searchQuery 和 userID
+    res.status(400).json({ error: 'No search query or user ID provided' });
     return;
   }
 
   // 安全地插入查询到数据库
   const sql = 'INSERT INTO searchlog (searchterm, userID, time) VALUES (?, ?, NOW())';
-  pool.query(sql, [searchQuery], (error, results) => {
+  pool.query(sql, [searchQuery, userID], (error, results) => {
     if (error) {
       console.error('Failed to save query:', error);
       res.status(500).json({ error: 'Error saving query' });
