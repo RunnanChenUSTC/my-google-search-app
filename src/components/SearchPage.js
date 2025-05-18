@@ -6,12 +6,13 @@ const SearchWithGoogleAPI = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
-  const resultsPerPage = 10; 
+  const resultsPerPage = 10;
   // 如何申请，参考 https://zhuanlan.zhihu.com/p/174666017
   const googleSearchKey = 'AIzaSyBT6bUL1Fxp9eGhivDqMSjPcDLVnC5ZLlI';
   const googleCxId = '133bf954924984aee';
   const baseurl = 'https://customsearch.googleapis.com/customsearch/v1';
 
+  // 获取搜索结果
   const fetchSearchResults = async () => {
     if (!query) return;
     setIsLoading(true);
@@ -19,23 +20,18 @@ const SearchWithGoogleAPI = () => {
     const offset = currentPage * resultsPerPage;
 
     try {
-      const response = await fetch(baseurl, {
+      // 构造查询参数并构建 URL
+      const searchUrl = `${baseurl}?q=${encodeURIComponent(query)}&cx=${googleCxId}&key=${googleSearchKey}&start=${offset + 1}&num=${resultsPerPage}`;
+
+      // 发送 GET 请求
+      const response = await fetch(searchUrl, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        // 使用 URL 查询参数传递搜索关键词、API 密钥和 Cx ID
-        // 请求参数：搜索关键词、Google API 密钥、CSE ID
-        body: JSON.stringify({
-          q: query,
-          cx: googleCxId,
-          key: googleSearchKey,
-          start: offset + 1,  // 用于分页
-          num: resultsPerPage,
-        })
+        headers: { 'Content-Type': 'application/json' }
       });
 
       if (!response.ok) throw new Error('Search failed');
       const data = await response.json();
-      setSearchResults(data.items || []);  // 设置搜索结果
+      setSearchResults(data.items || []);  // 更新搜索结果
     } catch (error) {
       console.error('Error fetching search results:', error);
       setError('Failed to fetch results');
@@ -49,16 +45,19 @@ const SearchWithGoogleAPI = () => {
     fetchSearchResults();
   }, [currentPage]);
 
+  // 处理搜索表单提交
   const handleSubmit = (event) => {
     event.preventDefault();
-    setCurrentPage(0);
+    setCurrentPage(0);  // 重置为第一页
     fetchSearchResults();
   };
 
+  // 跳到下一页
   const goToNextPage = () => {
     setCurrentPage(currentPage + 1);
   };
 
+  // 跳到上一页
   const goToPreviousPage = () => {
     if (currentPage > 0) setCurrentPage(currentPage - 1);
   };
