@@ -103,4 +103,3 @@ const SearchWithGoogleAPI = () => {
 };
 
 export default SearchWithGoogleAPI;
-s
