@@ -6,6 +6,8 @@ const SearchWithGoogleAPI = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
+  const [nextPageQuery, setNextPageQuery] = useState(null);  // 存储下一页查询参数
+  const [previousPageQuery, setPreviousPageQuery] = useState(null);  // 存储上一页查询参数
   const resultsPerPage = 10;
 
   // 发送请求
@@ -13,7 +15,6 @@ const SearchWithGoogleAPI = () => {
     if (!query) return;
     setIsLoading(true);
     setError('');
-    const offset = currentPage * resultsPerPage;
 
     try {
       // 发送 POST 请求到 Next.js API 路由
@@ -22,7 +23,7 @@ const SearchWithGoogleAPI = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           searchKey: query,
-          start: offset + 1,  // 用于分页
+          start: currentPage * resultsPerPage + 1,  // 根据当前页数计算 start 参数
           num: resultsPerPage,  // 每页的结果数量
         }),
       });
@@ -30,6 +31,13 @@ const SearchWithGoogleAPI = () => {
       if (!response.ok) throw new Error('Search failed');
       const data = await response.json();
       setSearchResults(data.items || []);  // 更新搜索结果
+
+      // 获取分页信息并更新状态
+      const nextPage = data.queries?.nextPage?.[0];
+      const previousPage = data.queries?.previousPage?.[0];
+
+      setNextPageQuery(nextPage ? nextPage.start : null);  // 更新下一页的查询
+      setPreviousPageQuery(previousPage ? previousPage.start : null);  // 更新上一页的查询
     } catch (error) {
       console.error('Error fetching search results:', error);
       setError('Failed to fetch results');
@@ -46,11 +54,17 @@ const SearchWithGoogleAPI = () => {
   };
 
   const goToNextPage = () => {
-    setCurrentPage(currentPage + 1);
+    if (nextPageQuery) {
+      setCurrentPage((prevPage) => prevPage + 1);
+      fetchSearchResults();  // 获取下一页的结果
+    }
   };
 
   const goToPreviousPage = () => {
-    if (currentPage > 0) setCurrentPage(currentPage - 1);
+    if (previousPageQuery) {
+      setCurrentPage((prevPage) => prevPage - 1);
+      fetchSearchResults();  // 获取上一页的结果
+    }
   };
 
   return (
@@ -78,12 +92,15 @@ const SearchWithGoogleAPI = () => {
           </li>
         ))}
       </ul>
-      <button onClick={goToPreviousPage} disabled={currentPage === 0}>
+      <button onClick={goToPreviousPage} disabled={!previousPageQuery}>
         Previous
       </button>
-      <button onClick={goToNextPage}>Next</button>
+      <button onClick={goToNextPage} disabled={!nextPageQuery}>
+        Next
+      </button>
     </div>
   );
 };
 
 export default SearchWithGoogleAPI;
+s
